@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Universal Studios Japan Field Trip Bingo</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #5c667a;
+      --accent: #2457ff;
+      --accent2: #ffcf33;
+      --marked: #dff4e7;
+      --border: #d7dceb;
+      --danger: #a33b3b;
+      --shadow: 0 12px 30px rgba(18, 31, 67, 0.13);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(36, 87, 255, .12), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(255, 207, 51, .20), transparent 30%),
+        var(--bg);
+      min-height: 100vh;
+      padding: 14px;
+    }
+
+    .shell {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, #16234c, #2457ff);
+      color: white;
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 180px;
+      height: 180px;
+      background: rgba(255, 207, 51, .25);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: clamp(1.45rem, 5vw, 2.4rem);
+      margin: 0 0 6px;
+      letter-spacing: -0.03em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: rgba(255,255,255,.86);
+      font-size: .98rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 13px 12px;
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: 0 5px 16px rgba(18, 31, 67, 0.10);
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    button.gold {
+      background: var(--accent2);
+      color: #2d2500;
+    }
+
+    button.danger {
+      color: var(--danger);
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .student-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 10px;
+      backdrop-filter: blur(4px);
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: white;
+      color: var(--ink);
+    }
+
+    .card-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .bingo-title {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .bingo-title div {
+      text-align: center;
+      font-size: clamp(1.35rem, 8vw, 3rem);
+      font-weight: 900;
+      color: var(--accent);
+      background: #eef2ff;
+      border-radius: 16px;
+      padding: 4px 0;
+      letter-spacing: .03em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .cell {
+      min-height: clamp(74px, 18vw, 132px);
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 16px;
+      padding: 7px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      position: relative;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      user-select: none;
+    }
+
+    .cell:active {
+      transform: scale(.97);
+    }
+
+    .cell.marked {
+      background: var(--marked);
+      border-color: #7ac797;
+    }
+
+    .cell.marked::after {
+      content: "✓";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: clamp(2rem, 12vw, 5rem);
+      color: rgba(24, 125, 73, .28);
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .category {
+      font-size: .61rem;
+      line-height: 1.1;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .045em;
+      min-height: 1.4em;
+    }
+
+    .task {
+      font-size: clamp(.72rem, 2.8vw, 1rem);
+      line-height: 1.15;
+      font-weight: 750;
+      display: grid;
+      place-items: center;
+      flex: 1;
+      z-index: 1;
+    }
+
+    .free {
+      background: #fff8d7;
+      border-color: #ead36d;
+    }
+
+    .free .task {
+      font-size: clamp(.8rem, 3.2vw, 1.1rem);
+    }
+
+    .status {
+      margin: 12px 0 0;
+      padding: 12px;
+      border-radius: 18px;
+      background: #eef2ff;
+      color: #183275;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    details {
+      margin-top: 14px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .instructions {
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: .95rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 280px;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      line-height: 1.35;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: .8rem;
+      text-align: center;
+      margin: 14px 0 4px;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      header, .controls, .meta, details, .footer-note {
+        display: none !important;
+      }
+      .shell { max-width: none; }
+      .card-wrap {
+        box-shadow: none;
+        border: 0;
+      }
+      .cell { min-height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <h1>Universal Studios Japan Bingo</h1>
+      <p class="subtitle">Tap a square when you spot it. First line wins, full-card legends earn bragging rights.</p>
+    </header>
+
+    <section class="controls" aria-label="Bingo controls">
+      <button class="primary" onclick="newCard()">New Random Card</button>
+      <button class="gold" onclick="shareCard()">Share / AirDrop</button>
+      <button onclick="saveImageTip()">Screenshot Tip</button>
+      <button class="danger" onclick="resetMarks()">Reset Marks</button>
+    </section>
+
+    <section class="meta">
+      <div class="student-row">
+        <input id="studentName" aria-label="Student or team name" placeholder="Student or team name" oninput="saveState()" />
+        <button onclick="stampName()">Stamp</button>
+      </div>
+    </section>
+
+    <section class="card-wrap">
+      <div class="bingo-title" aria-hidden="true">
+        <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
+      </div>
+      <div id="grid" class="grid" aria-label="Interactive bingo grid"></div>
+      <div id="status" class="status">Card ready. Tap squares to mark sightings.</div>
+    </section>
+
+    <details>
+      <summary>Teacher instructions</summary>
+      <div class="instructions">
+        <p><strong>Best phone workflow:</strong> AirDrop or message this HTML file to students. On iPhone, they can open it in Safari, tap Share, then choose “Add to Home Screen” for an app-like button.</p>
+        <p><strong>Variety:</strong> press “New Random Card” before sharing to create a different layout. Students can also generate their own, but teachers may prefer to send a prepared card to each group.</p>
+        <p><strong>Marking:</strong> students tap squares. Their phone remembers marks locally, even if they close and reopen the file.</p>
+        <p><strong>Proof option:</strong> students can take a screenshot when they get bingo and send it to the teacher.</p>
+        <p><strong>Edit the item bank:</strong> open this file in Notepad, TextEdit, VS Code, or any plain-text editor. Find the section named <code>ITEM_BANK</code>, then add, remove, or rewrite items. Keep quotation marks and commas intact.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Editable item bank preview</summary>
+      <p class="instructions">This preview shows the current item pool. To truly edit the card, open the HTML file in a text editor and change the ITEM_BANK section near the bottom.</p>
+      <textarea id="bankPreview" readonly></textarea>
+    </details>
+
+    <p class="footer-note">Made for field-trip use. This file works offline after sharing.</p>
+  </main>
+
+  <script>
+    /*
+      EDITABLE SECTION: ITEM_BANK
+
+      To add items:
+      1. Pick a category.
+      2. Add a new quoted line with a comma after it.
+      3. Keep items observable, safe, and teacher-friendly.
+
+      Tip: Add many more than 24 items for better variety.
+    */
+    const ITEM_BANK = {
+      "Unique People": [
+        "A guest wearing a full themed outfit",
+        "Someone with character-themed glasses",
+        "A person carrying a popcorn bucket",
+        "A guest with matching family shirts",
+        "Someone wearing a Minion hat",
+        "A person with a Mario or Luigi hat",
+        "Someone wearing a cape or robe",
+        "A guest with character face paint",
+        "A person holding a plush bigger than their head",
+        "Someone wearing two different character items"
+      ],
+      "Unique Locations": [
+        "A hidden corner with almost no crowd",
+        "A themed sign above eye level",
+        "A detailed window display",
+        "A quiet bench area",
+        "A themed trash can or recycling bin",
+        "A photo spot with no line",
+        "A small statue or prop near a walkway",
+        "An unusual doorway or fake storefront",
+        "A food cart with themed decorations",
+        "A map or sign showing multiple lands"
+      ],
+      "Crowd Spotting": [
+        "Someone studying a park map",
+        "A group deciding where to go next",
+        "A person taking a selfie with a landmark",
+        "A student from another school group",
+        "A family comparing snacks",
+        "Someone checking ride wait times",
+        "A person waving to a character",
+        "A guest celebrating a birthday",
+        "Someone carrying rain gear",
+        "A group wearing matching accessories"
+      ],
+      "Wild Category": [
+        "A snack shaped like a character",
+        "A sound effect that surprises you",
+        "A bird brave enough to walk nearby",
+        "A souvenir you have never seen before",
+        "A ride warning sign",
+        "A staff member giving directions",
+        "A themed manhole cover or ground detail",
+        "A hidden symbol or logo",
+        "A showtime board or event sign",
+        "A smell that clearly belongs to a food stand"
+      ],
+      "Free Category": [
+        "FREE: Team photo checkpoint",
+        "FREE: Drink water checkpoint",
+        "FREE: Teacher check-in completed",
+        "FREE: Kindness square, help someone politely",
+        "FREE: Safety check, everyone accounted for"
+      ]
+    };
+
+    const STORAGE_KEY = "usj_bingo_state_v1";
+    const letters = ["B", "I", "N", "G", "O"];
+    let currentCard = [];
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function pickItems(category, count) {
+      const pool = shuffle(ITEM_BANK[category] || []);
+      const picked = [];
+      while (picked.length < count) {
+        picked.push(pool[picked.length % pool.length]);
+      }
+      return picked.map(text => ({ category, text, marked: false }));
+    }
+
+    function buildRandomCard() {
+      const cats = ["Unique People", "Unique Locations", "Crowd Spotting", "Wild Category"];
+      let items = [];
+
+      // Balanced category spread: 6 of each major category = 24 marked squares.
+      cats.forEach(cat => items = items.concat(pickItems(cat, 6)));
+      items = shuffle(items).slice(0, 24);
+
+      const freeOptions = ITEM_BANK["Free Category"];
+      const freeText = freeOptions[Math.floor(Math.random() * freeOptions.length)];
+      items.splice(12, 0, { category: "Free Category", text: freeText, marked: true, free: true });
+
+      return items;
+    }
+
+    function render() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+
+      currentCard.forEach((item, index) => {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "cell" + (item.marked ? " marked" : "") + (item.free ? " free" : "");
+        cell.setAttribute("aria-pressed", item.marked ? "true" : "false");
+        cell.onclick = () => toggleCell(index);
+
+        const cat = document.createElement("div");
+        cat.className = "category";
+        cat.textContent = item.category;
+
+        const task = document.createElement("div");
+        task.className = "task";
+        task.textContent = item.text;
+
+        cell.appendChild(cat);
+        cell.appendChild(task);
+        grid.appendChild(cell);
+      });
+
+      updateStatus();
+      updatePreview();
+    }
+
+    function toggleCell(index) {
+      if (currentCard[index].free) return;
+      currentCard[index].marked = !currentCard[index].marked;
+      saveState();
+      render();
+    }
+
+    function hasBingo() {
+      const lines = [];
+
+      for (let r = 0; r < 5; r++) lines.push([0,1,2,3,4].map(c => r * 5 + c));
+      for (let c = 0; c < 5; c++) lines.push([0,1,2,3,4].map(r => r * 5 + c));
+      lines.push([0,6,12,18,24]);
+      lines.push([4,8,12,16,20]);
+
+      return lines.some(line => line.every(i => currentCard[i]?.marked));
+    }
+
+    function updateStatus() {
+      const marked = currentCard.filter(i => i.marked).length;
+      const name = document.getElementById("studentName").value.trim();
+      const owner = name ? `${name}: ` : "";
+      const status = document.getElementById("status");
+
+      if (hasBingo()) {
+        status.textContent = `${owner}BINGO achieved. Screenshot this victory artifact.`;
+      } else {
+        status.textContent = `${owner}${marked}/25 squares marked. Keep hunting.`;
+      }
+    }
+
+    function newCard() {
+      if (!confirm("Generate a new bingo card? Current marks will be replaced.")) return;
+      currentCard = buildRandomCard();
+      saveState();
+      render();
+    }
+
+    function resetMarks() {
+      currentCard = currentCard.map(item => ({ ...item, marked: !!item.free }));
+      saveState();
+      render();
+    }
+
+    function stampName() {
+      saveState();
+      updateStatus();
+      alert("Name saved on this phone.");
+    }
+
+    function saveState() {
+      const state = {
+        card: currentCard,
+        studentName: document.getElementById("studentName").value
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && Array.isArray(saved.card) && saved.card.length === 25) {
+          currentCard = saved.card;
+          document.getElementById("studentName").value = saved.studentName || "";
+          return;
+        }
+      } catch (err) {}
+      currentCard = buildRandomCard();
+      saveState();
+    }
+
+    async function shareCard() {
+      const shareData = {
+        title: "Universal Studios Japan Bingo",
+        text: "Open this USJ field-trip bingo card on your phone. Tap squares as you spot them."
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          return;
+        } catch (err) {}
+      }
+
+      alert("Use your phone or computer share menu to AirDrop/message this HTML file. On iPhone: open file → Share button → AirDrop or Messages.");
+    }
+
+    function saveImageTip() {
+      alert("For proof, take a screenshot after bingo. iPhone: Side Button + Volume Up. Android: Power + Volume Down on most devices.");
+    }
+
+    function updatePreview() {
+      document.getElementById("bankPreview").value = JSON.stringify(ITEM_BANK, null, 2);
+    }
+
+    loadState();
+    render();
+  </script>
+</body>
+</html>
